@@ -1,0 +1,112 @@
+
+
+Stored Procedure my Notes
+
+create or replace procedure sp_students(no number,name Varchar,dob varchar,fees number,status out varchar)
+as
+Begin
+Insert into Students values (no,name,dob,fees);
+status:='1 row inserted';
+Exception
+When others then
+if instr(SQLERRM,'PK_SNO')>0 THEN
+status:='sno should not have duplicate data';
+else
+status:=SQLERRM;
+END IF;
+end;
+/
+
+----- > to run the above stored procedure in sql plus we use the below code
+declare
+	st varchar2(60);
+begin
+	sp_students(100,'Kunuru',10-20-2023,15000,st);
+	dbms_output.put_line(st);
+end;
+/
+
+
+**************************************
+
+create or replace procedure sp_updateStudents(no number,fees number,status out varchar)
+as
+co number(2);
+Begin
+update students set SFEES=fees Where SNO=no;
+co:=SQL%ROWCOUNT;
+if co=1 then
+	status:='1 row updated';
+else
+	status:='no emp found ';
+end if;
+end;
+/
+
+----- > to run the above stored procedure in sql plus we use the below code
+
+declare
+st varchar2(60);
+Begin
+sp_updateStudents(101,125,st);
+dbms_output.put_line(st);
+end;
+/
+
+
+********************************************************
+
+create or replace procedure sp_deleteStudents(no number,status out varchar)
+As
+cnt number;
+Begin
+Delete from Students where sno=no;
+cnt:=SQL%ROWCOUNT;
+if cnt!=0 then
+status:='1 row deleted';
+else
+status:='No such student found with || no';
+end if;
+end;
+
+
+-------- > to run the above stored procedure in sql plus we use the below code
+declare 
+st varchar2(60);
+Begin
+sp_deleteStudents(100,st);
+dbms_output.put_line(st);
+end;
+/
+
+********************************************************************************
+
+
+
+Create or replace Procedure sp_retriveStudents(row out sys_refcursor)
+as
+Begin
+open row for select * from Students;
+end;
+/
+
+
+------ >to run the above stored procedure in sql plus we use the below code
+
+
+declare
+Trainerid varchar2(24);
+TrainerName varchar2(24);
+r sys_refcursor;
+begin
+sp_sp_retriveStudents(r);
+loop
+fetch r into Trainerid,TrainerName;
+exit when r%notfound;
+dbms_output.put_line(Trainerid||' '||TrainerName);
+end loop;
+end;
+/
+
+
+
